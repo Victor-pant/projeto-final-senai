@@ -139,7 +139,7 @@
       err.classList.remove('show');
 
       try {
-        const res = await fetch(`${API}/autenticar`, {
+        const res = await fetch(API, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ usuario, senha })
