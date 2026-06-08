@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: edusenai-backend
+    runtime: python
+    rootDir: pasta_backend
+    buildCommand: pip install -r requirements.txt && python core/utils/criar_db.py
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+
+  - type: web
+    name: edusenai-frontend
+    runtime: python
+    rootDir: pasta_frontend
+    buildCommand: pip install flask gunicorn
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0

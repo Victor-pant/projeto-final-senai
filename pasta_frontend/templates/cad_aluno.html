@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EduSenai – Alunos</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:#0d0f14;--surface:#13161e;--card:#181c26;--border:#252a38;
+      --accent:#4ecdc4;--accent2:#e8c547;--danger:#ff6b6b;
+      --text:#eceef4;--muted:#7a8099;--success:#6bcb77;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(78,205,196,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(78,205,196,.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+    header{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:20px 48px;border-bottom:1px solid var(--border);background:rgba(13,15,20,.85);backdrop-filter:blur(12px);}
+    .logo{display:flex;align-items:center;gap:12px;}
+    .logo-icon{width:38px;height:38px;background:var(--accent);border-radius:8px;display:grid;place-items:center;font-size:18px;}
+    .logo-text{font-family:'DM Serif Display',serif;font-size:1.4rem;letter-spacing:-.5px;}
+    .logo-text span{color:var(--accent);}
+    .header-right{display:flex;align-items:center;gap:10px;}
+    .btn-back{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:6px 14px;font-family:'Syne',sans-serif;font-size:.8rem;cursor:pointer;text-decoration:none;transition:border-color .2s,color .2s;}
+    .btn-back:hover{border-color:var(--accent);color:var(--accent);}
+    .api-badge{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:6px 12px;display:flex;align-items:center;gap:8px;}
+    .dot{width:7px;height:7px;border-radius:50%;background:var(--success);animation:pulse 2s infinite;}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    main{position:relative;z-index:1;padding:40px 48px;max-width:1200px;margin:0 auto;}
+    .page-header{margin-bottom:32px;}
+    .page-title{font-family:'DM Serif Display',serif;font-size:2rem;letter-spacing:-.5px;margin-bottom:6px;}
+    .page-title span{color:var(--accent);}
+    .page-sub{color:var(--muted);font-size:.9rem;}
+    .layout{display:grid;grid-template-columns:380px 1fr;gap:28px;align-items:start;}
+    .form-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;}
+    .form-title{font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:20px;font-family:'DM Mono',monospace;}
+    .field{margin-bottom:16px;}
+    label{display:block;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
+    input[type=text],input[type=number]{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:.88rem;padding:10px 12px;outline:none;transition:border-color .2s,box-shadow .2s;}
+    input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(78,205,196,.12);}
+    .btn-row{display:flex;gap:10px;margin-top:4px;}
+    .btn{padding:10px 18px;border-radius:8px;border:none;font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;transition:opacity .2s;}
+    .btn-primary{background:var(--accent);color:#0d0f14;flex:1;}
+    .btn-primary:hover{opacity:.88;}
+    .btn-secondary{background:var(--surface);color:var(--muted);border:1px solid var(--border);}
+    .btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
+    .toast{position:fixed;bottom:24px;right:24px;z-index:100;padding:12px 20px;border-radius:10px;font-size:.88rem;font-weight:600;opacity:0;transform:translateY(10px);transition:opacity .3s,transform .3s;pointer-events:none;}
+    .toast.show{opacity:1;transform:translateY(0);}
+    .toast.ok{background:rgba(107,203,119,.15);border:1px solid rgba(107,203,119,.3);color:var(--success);}
+    .toast.err{background:rgba(255,107,107,.12);border:1px solid rgba(255,107,107,.3);color:var(--danger);}
+    .table-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+    .table-toolbar{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);}
+    .table-title{font-family:'DM Mono',monospace;font-size:.75rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;}
+    .search-input{background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:.82rem;padding:7px 12px;outline:none;width:200px;transition:border-color .2s;}
+    .search-input:focus{border-color:var(--accent);}
+    table{width:100%;border-collapse:collapse;}
+    th{font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:10px 16px;text-align:left;border-bottom:1px solid var(--border);}
+    td{padding:12px 16px;font-size:.88rem;border-bottom:1px solid rgba(37,42,56,.5);vertical-align:middle;}
+    tr:last-child td{border-bottom:none;}
+    tr:hover td{background:rgba(78,205,196,.03);}
+    .id-badge{font-family:'DM Mono',monospace;font-size:.75rem;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:2px 7px;color:var(--muted);}
+    .action-btn{background:transparent;border:none;cursor:pointer;padding:4px 8px;border-radius:5px;font-size:.82rem;font-weight:600;transition:background .15s;}
+    .btn-edit{color:var(--accent2);}
+    .btn-edit:hover{background:rgba(232,197,71,.12);}
+    .btn-del{color:var(--danger);}
+    .btn-del:hover{background:rgba(255,107,107,.12);}
+    .empty{padding:40px;text-align:center;color:var(--muted);font-size:.9rem;}
+    @media(max-width:900px){.layout{grid-template-columns:1fr;}main{padding:24px 20px;}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🎓</div>
+      <div class="logo-text">Edu<span>Senai</span></div>
+    </div>
+    <div class="header-right">
+      <div class="api-badge"><div class="dot"></div> API :5000</div>
+      <a class="btn-back" href="/dashboard">← Dashboard</a>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-header">
+      <div class="page-title">Gestão de <span>Alunos</span></div>
+      <div class="page-sub">Cadastre, edite e remova alunos do sistema.</div>
+    </div>
+
+    <div class="layout">
+      <div class="form-card">
+        <div class="form-title" id="formTitle">+ Novo Aluno</div>
+        <input type="hidden" id="alunoId"/>
+        <div class="field"><label>Nome</label><input type="text" id="nome" placeholder="Nome completo"/></div>
+        <div class="field"><label>Idade</label><input type="number" id="idade" placeholder="Ex: 18" min="0" max="124"/></div>
+        <div class="field"><label>CPF</label><input type="text" id="cpf" placeholder="000.000.000-00" maxlength="14"/></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="salvar()">Salvar</button>
+          <button class="btn btn-secondary" onclick="limpar()">Limpar</button>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-toolbar">
+          <span class="table-title">Alunos cadastrados</span>
+          <input class="search-input" type="text" placeholder="Buscar…" oninput="filtrar(this.value)"/>
+        </div>
+        <table>
+          <thead>
+            <tr><th>#</th><th>Nome</th><th>Idade</th><th>CPF</th><th>Ações</th></tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+        <div class="empty" id="empty" style="display:none">Nenhum aluno encontrado.</div>
+      </div>
+    </div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API = 'http://localhost:5000';
+    let todosAlunos = [];
+
+    // máscara CPF
+    document.getElementById('cpf').addEventListener('input', e => {
+      let v = e.target.value.replace(/\D/g,'').slice(0,11);
+      if(v.length>9) v=v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/,'$1.$2.$3-$4');
+      else if(v.length>6) v=v.replace(/(\d{3})(\d{3})(\d{1,3})/,'$1.$2.$3');
+      else if(v.length>3) v=v.replace(/(\d{3})(\d{1,3})/,'$1.$2');
+      e.target.value=v;
+    });
+
+    function toast(msg, tipo='ok') {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.className = `toast ${tipo} show`;
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    async function carregar() {
+      try {
+        const r = await fetch(`${API}/aluno`);
+        const d = await r.json();
+        todosAlunos = d.alunos || [];
+        renderizar(todosAlunos);
+      } catch(e) { toast('Erro ao conectar com o backend.', 'err'); }
+    }
+
+    function renderizar(lista) {
+      const tb = document.getElementById('tbody');
+      const empty = document.getElementById('empty');
+      tb.innerHTML = '';
+      if (!lista.length) { empty.style.display='block'; return; }
+      empty.style.display = 'none';
+      lista.forEach(a => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><span class="id-badge">${a.id}</span></td>
+          <td>${a.nome}</td>
+          <td>${a.idade}</td>
+          <td><span style="font-family:'DM Mono',monospace;font-size:.82rem">${a.cpf}</span></td>
+          <td>
+            <button class="action-btn btn-edit" onclick="editar(${a.id})">✏ Editar</button>
+            <button class="action-btn btn-del" onclick="deletar(${a.id})">✕ Remover</button>
+          </td>`;
+        tb.appendChild(tr);
+      });
+    }
+
+    function filtrar(q) {
+      const f = todosAlunos.filter(a => a.nome.toLowerCase().includes(q.toLowerCase()) || a.cpf.includes(q));
+      renderizar(f);
+    }
+
+    async function salvar() {
+      const id = document.getElementById('alunoId').value;
+      const nome = document.getElementById('nome').value.trim();
+      const idade = parseInt(document.getElementById('idade').value);
+      const cpf = document.getElementById('cpf').value.trim();
+      if (!nome || !cpf || isNaN(idade)) { toast('Preencha todos os campos.', 'err'); return; }
+
+      try {
+        let r;
+        if (id) {
+          r = await fetch(`${API}/aluno`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:parseInt(id),nome,idade,cpf}) });
+        } else {
+          r = await fetch(`${API}/aluno`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({nome,idade,cpf}) });
+        }
+        const d = await r.json();
+        if (d.erro) { toast(d.erro, 'err'); return; }
+        toast(id ? 'Aluno atualizado!' : 'Aluno cadastrado!');
+        limpar(); carregar();
+      } catch(e) { toast('Erro ao salvar.', 'err'); }
+    }
+
+    function editar(id) {
+      const a = todosAlunos.find(x => x.id === id);
+      if (!a) return;
+      document.getElementById('alunoId').value = a.id;
+      document.getElementById('nome').value = a.nome;
+      document.getElementById('idade').value = a.idade;
+      document.getElementById('cpf').value = a.cpf;
+      document.getElementById('formTitle').textContent = '✏ Editar Aluno';
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    async function deletar(id) {
+      if (!confirm('Remover este aluno?')) return;
+      try {
+        const r = await fetch(`${API}/aluno/${id}`, {method:'DELETE'});
+        const d = await r.json();
+        if (d.erro) { toast(d.erro,'err'); return; }
+        toast('Aluno removido.'); carregar();
+      } catch(e) { toast('Erro ao remover.','err'); }
+    }
+
+    function limpar() {
+      document.getElementById('alunoId').value = '';
+      document.getElementById('nome').value = '';
+      document.getElementById('idade').value = '';
+      document.getElementById('cpf').value = '';
+      document.getElementById('formTitle').textContent = '+ Novo Aluno';
+    }
+
+    carregar();
+  </script>
+</body>
+</html>

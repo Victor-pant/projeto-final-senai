@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EduSenai – Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0d0f14; --surface: #13161e; --card: #181c26;
+      --border: #252a38; --accent: #4ecdc4; --accent2: #e8c547;
+      --danger: #ff6b6b; --text: #eceef4; --muted: #7a8099; --success: #6bcb77;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Syne', sans-serif; background: var(--bg);
+      color: var(--text); min-height: 100vh;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(78,205,196,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(78,205,196,.04) 1px, transparent 1px);
+      background-size: 40px 40px; pointer-events: none; z-index: 0;
+    }
+    header {
+      position: relative; z-index: 10; display: flex;
+      align-items: center; justify-content: space-between;
+      padding: 20px 48px; border-bottom: 1px solid var(--border);
+      background: rgba(13,15,20,.85); backdrop-filter: blur(12px);
+    }
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-icon {
+      width: 38px; height: 38px; background: var(--accent);
+      border-radius: 8px; display: grid; place-items: center; font-size: 18px;
+    }
+    .logo-text { font-family: 'DM Serif Display', serif; font-size: 1.4rem; letter-spacing: -.5px; }
+    .logo-text span { color: var(--accent); }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .user-badge {
+      font-family: 'DM Mono', monospace; font-size: .78rem; color: var(--muted);
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; padding: 6px 12px;
+    }
+    .user-badge span { color: var(--accent); }
+    .btn-logout {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--muted); border-radius: 6px; padding: 6px 14px;
+      font-family: 'Syne', sans-serif; font-size: .8rem; cursor: pointer;
+      transition: border-color .2s, color .2s;
+    }
+    .btn-logout:hover { border-color: var(--danger); color: var(--danger); }
+    main { position: relative; z-index: 1; padding: 60px 48px; max-width: 1100px; margin: 0 auto; }
+    .welcome { margin-bottom: 56px; }
+    .welcome h2 {
+      font-family: 'DM Serif Display', serif; font-size: 2.4rem;
+      letter-spacing: -.5px; margin-bottom: 8px;
+    }
+    .welcome h2 span { color: var(--accent); }
+    .welcome p { color: var(--muted); font-size: .95rem; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+    .nav-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 32px; text-decoration: none;
+      color: var(--text); transition: border-color .2s, transform .2s, box-shadow .2s;
+      cursor: pointer; display: block;
+    }
+    .nav-card:hover {
+      border-color: var(--card-accent); transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0,0,0,.3);
+    }
+    .nav-card.card-aluno { --card-accent: #4ecdc4; }
+    .nav-card.card-professor { --card-accent: #e8c547; }
+    .nav-card.card-materias { --card-accent: #a78bfa; }
+    .card-icon {
+      width: 52px; height: 52px; border-radius: 12px;
+      display: grid; place-items: center; font-size: 24px; margin-bottom: 20px;
+    }
+    .card-aluno .card-icon { background: rgba(78,205,196,.15); }
+    .card-professor .card-icon { background: rgba(232,197,71,.15); }
+    .card-materias .card-icon { background: rgba(167,139,250,.15); }
+    .card-title {
+      font-size: 1.2rem; font-weight: 700; margin-bottom: 8px;
+    }
+    .card-aluno .card-title { color: #4ecdc4; }
+    .card-professor .card-title { color: #e8c547; }
+    .card-materias .card-title { color: #a78bfa; }
+    .card-desc { color: var(--muted); font-size: .88rem; line-height: 1.5; }
+    .card-arrow {
+      margin-top: 24px; font-family: 'DM Mono', monospace;
+      font-size: .78rem; color: var(--muted); display: flex;
+      align-items: center; gap: 6px;
+    }
+    .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 48px; }
+    .stat {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 20px 24px;
+    }
+    .stat-label { font-family: 'DM Mono', monospace; font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
+    .stat-value { font-family: 'DM Serif Display', serif; font-size: 2rem; }
+    .stat-aluno .stat-value { color: #4ecdc4; }
+    .stat-professor .stat-value { color: #e8c547; }
+    .stat-materias .stat-value { color: #a78bfa; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🎓</div>
+      <div class="logo-text">Edu<span>Senai</span></div>
+    </div>
+    <div class="header-right">
+      <div class="user-badge">logado como <span id="nomeUsuario">–</span></div>
+      <button class="btn-logout" onclick="logout()">Sair</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="welcome">
+      <h2>Bem-vindo, <span id="nomeWelcome">–</span>!</h2>
+      <p>Selecione um módulo abaixo para gerenciar os dados da escola.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat stat-aluno">
+        <div class="stat-label">Alunos cadastrados</div>
+        <div class="stat-value" id="countAlunos">–</div>
+      </div>
+      <div class="stat stat-professor">
+        <div class="stat-label">Professores cadastrados</div>
+        <div class="stat-value" id="countProfessores">–</div>
+      </div>
+      <div class="stat stat-materias">
+        <div class="stat-label">Matérias cadastradas</div>
+        <div class="stat-value" id="countMaterias">–</div>
+      </div>
+    </div>
+
+    <div class="cards">
+      <a class="nav-card card-aluno" href="/alunos">
+        <div class="card-icon">🎒</div>
+        <div class="card-title">Alunos</div>
+        <div class="card-desc">Cadastre, edite, consulte e remova alunos. Validação de CPF e dados obrigatórios.</div>
+        <div class="card-arrow">Acessar módulo →</div>
+      </a>
+      <a class="nav-card card-professor" href="/professores">
+        <div class="card-icon">📚</div>
+        <div class="card-title">Professores</div>
+        <div class="card-desc">Gerencie os professores da instituição com nome, idade e formação acadêmica.</div>
+        <div class="card-arrow">Acessar módulo →</div>
+      </a>
+      <a class="nav-card card-materias" href="/materias">
+        <div class="card-icon">📐</div>
+        <div class="card-title">Matérias</div>
+        <div class="card-desc">Cadastre as disciplinas com nome, sigla curricular e descrição do conteúdo.</div>
+        <div class="card-arrow">Acessar módulo →</div>
+      </a>
+    </div>
+  </main>
+
+  <script>
+    const API = 'http://localhost:5000';
+    const usuario = sessionStorage.getItem('usuario') || 'usuário';
+    document.getElementById('nomeUsuario').textContent = usuario;
+    document.getElementById('nomeWelcome').textContent = usuario;
+
+    function logout() {
+      sessionStorage.clear();
+      window.location.href = '/login';
+    }
+
+    async function carregarStats() {
+      try {
+        const [ra, rp, rm] = await Promise.all([
+          fetch(`${API}/aluno`), fetch(`${API}/professor`), fetch(`${API}/materias`)
+        ]);
+        if (ra.ok) { const d = await ra.json(); document.getElementById('countAlunos').textContent = d.alunos?.length ?? '–'; }
+        if (rp.ok) { const d = await rp.json(); document.getElementById('countProfessores').textContent = d.professores?.length ?? '–'; }
+        if (rm.ok) { const d = await rm.json(); document.getElementById('countMaterias').textContent = d.materias?.length ?? '–'; }
+      } catch(e) { /* backend offline */ }
+    }
+    carregarStats();
+  </script>
+</body>
+</html>

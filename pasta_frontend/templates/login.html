@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EduSenai – Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0d0f14; --surface: #13161e; --card: #181c26;
+      --border: #252a38; --accent: #4ecdc4; --accent2: #e8c547;
+      --danger: #ff6b6b; --text: #eceef4; --muted: #7a8099; --success: #6bcb77;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Syne', sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(78,205,196,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(78,205,196,.04) 1px, transparent 1px);
+      background-size: 40px 40px; pointer-events: none; z-index: 0;
+    }
+    .glow {
+      position: fixed; width: 600px; height: 600px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(78,205,196,.08) 0%, transparent 70%);
+      top: 50%; left: 50%; transform: translate(-50%, -50%);
+      pointer-events: none; z-index: 0;
+    }
+    .login-wrap {
+      position: relative; z-index: 10;
+      width: 100%; max-width: 420px; padding: 16px;
+    }
+    .brand {
+      text-align: center; margin-bottom: 40px;
+    }
+    .brand-icon {
+      width: 56px; height: 56px; background: var(--accent);
+      border-radius: 14px; display: inline-grid; place-items: center;
+      font-size: 26px; margin-bottom: 16px;
+      box-shadow: 0 0 30px rgba(78,205,196,.3);
+    }
+    .brand h1 {
+      font-family: 'DM Serif Display', serif; font-size: 2rem;
+      letter-spacing: -.5px;
+    }
+    .brand h1 span { color: var(--accent); }
+    .brand p { color: var(--muted); font-size: .85rem; margin-top: 6px; }
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 36px;
+    }
+    .field { margin-bottom: 20px; }
+    label {
+      display: block; font-size: .78rem; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 8px;
+    }
+    input[type="text"], input[type="password"] {
+      width: 100%; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 8px;
+      color: var(--text); font-family: 'DM Mono', monospace;
+      font-size: .9rem; padding: 12px 14px; outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(78,205,196,.12);
+    }
+    .btn-login {
+      width: 100%; padding: 14px; background: var(--accent);
+      border: none; border-radius: 8px; color: #0d0f14;
+      font-family: 'Syne', sans-serif; font-size: .95rem; font-weight: 700;
+      cursor: pointer; transition: opacity .2s, transform .1s;
+      margin-top: 8px;
+    }
+    .btn-login:hover { opacity: .9; }
+    .btn-login:active { transform: scale(.98); }
+    .btn-login:disabled { opacity: .5; cursor: not-allowed; }
+    .error-msg {
+      background: rgba(255,107,107,.1); border: 1px solid rgba(255,107,107,.3);
+      border-radius: 8px; color: var(--danger); font-size: .85rem;
+      padding: 10px 14px; margin-bottom: 20px; display: none;
+    }
+    .error-msg.show { display: block; }
+    .hint {
+      font-family: 'DM Mono', monospace; font-size: .72rem;
+      color: var(--muted); text-align: center; margin-top: 20px;
+    }
+    .hint span { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="glow"></div>
+  <div class="login-wrap">
+    <div class="brand">
+      <div class="brand-icon">🎓</div>
+      <h1>Edu<span>Senai</span></h1>
+      <p>Sistema de Gestão Escolar</p>
+    </div>
+    <div class="card">
+      <div class="error-msg" id="errorMsg">Usuário ou senha inválidos.</div>
+      <div class="field">
+        <label>Usuário</label>
+        <input type="text" id="inputUsuario" placeholder="seu usuário" autocomplete="username"/>
+      </div>
+      <div class="field">
+        <label>Senha</label>
+        <input type="password" id="inputSenha" placeholder="••••••••" autocomplete="current-password"/>
+      </div>
+      <button class="btn-login" id="btnLogin" onclick="fazerLogin()">Entrar</button>
+      <p class="hint">Padrão: <span>senai</span> / <span>senai123</span></p>
+    </div>
+  </div>
+
+  <script>
+    const API = 'http://localhost:5000';
+
+    document.getElementById('inputSenha').addEventListener('keydown', e => {
+      if (e.key === 'Enter') fazerLogin();
+    });
+
+    async function fazerLogin() {
+      const usuario = document.getElementById('inputUsuario').value.trim();
+      const senha = document.getElementById('inputSenha').value;
+      const btn = document.getElementById('btnLogin');
+      const err = document.getElementById('errorMsg');
+
+      if (!usuario || !senha) {
+        err.textContent = 'Preencha todos os campos.';
+        err.classList.add('show'); return;
+      }
+
+      btn.disabled = true; btn.textContent = 'Entrando…';
+      err.classList.remove('show');
+
+      try {
+        const res = await fetch(`${API}/autenticar`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ usuario, senha })
+        });
+        const data = await res.json();
+        if (data.autenticado) {
+          sessionStorage.setItem('usuario', data.usuario);
+          sessionStorage.setItem('userId', data.id);
+          window.location.href = '/dashboard';
+        } else {
+          err.textContent = 'Usuário ou senha inválidos.';
+          err.classList.add('show');
+        }
+      } catch (e) {
+        err.textContent = 'Erro de conexão com o servidor backend.';
+        err.classList.add('show');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Entrar';
+      }
+    }
+  </script>
+</body>
+</html>
