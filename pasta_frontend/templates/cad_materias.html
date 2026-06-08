@@ -115,8 +115,12 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    const API = 'https://edusenai-frontend.onrender.com/materias';
+    // CORREÇÃO 1: Apontando para o endereço correto do BACKEND no Render
+    const API = 'https://edusenai-backend.onrender.com/materias';
     let todas = [];
+
+    // Atualiza o distintivo visual no cabeçalho para indicar que está na Nuvem
+    document.querySelector('.api-badge').innerHTML = '<div class="dot"></div> API: Nuvem';
 
     function toast(msg, tipo='ok') {
       const t = document.getElementById('toast');
@@ -126,7 +130,8 @@
 
     async function carregar() {
       try {
-        const r = await fetch(`${API}/materias`);
+        // CORREÇÃO 2: Removida a duplicação de /materias no fetch principal
+        const r = await fetch(API);
         const d = await r.json();
         todas = d.materias || [];
         renderizar(todas);
@@ -140,8 +145,10 @@
       if (!lista.length) { empty.style.display='block'; return; }
       empty.style.display = 'none';
       lista.forEach(m => {
+        // Correção preventiva caso o backend retorne o campo nulo ou vazio
+        const textoDesc = m.descricao || '';
+        const desc = textoDesc.length > 40 ? textoDesc.slice(0,40)+'…' : textoDesc;
         const tr = document.createElement('tr');
-        const desc = m.descricao.length > 40 ? m.descricao.slice(0,40)+'…' : m.descricao;
         tr.innerHTML = `
           <td><span class="id-badge">${m.id}</span></td>
           <td>${m.nome}</td>
@@ -158,7 +165,7 @@
     function filtrar(q) {
       const f = todas.filter(m =>
         m.nome.toLowerCase().includes(q.toLowerCase()) ||
-        m.sigla_curricular.toLowerCase().includes(q.toLowerCase())
+        (m.sigla_curricular && m.sigla_curricular.toLowerCase().includes(q.toLowerCase()))
       );
       renderizar(f);
     }
@@ -173,9 +180,10 @@
       try {
         let r;
         if (id) {
-          r = await fetch(`${API}/materias/${id}`, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({nome,sigla_curricular,descricao})});
+          // CORREÇÃO 3: Ajustada rota de PUT para a URL base limpa, passando o id convertido no JSON
+          r = await fetch(API, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:parseInt(id),nome,sigla_curricular,descricao})});
         } else {
-          r = await fetch(`${API}/materias`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({nome,sigla_curricular,descricao})});
+          r = await fetch(API, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({nome,sigla_curricular,descricao})});
         }
         const d = await r.json();
         if (d.erro) { toast(d.erro,'err'); return; }
@@ -198,7 +206,8 @@
     async function deletar(id) {
       if (!confirm('Remover esta matéria?')) return;
       try {
-        const r = await fetch(`${API}/materias/${id}`, {method:'DELETE'});
+        // CORREÇÃO 4: Rota de DELETE ajustada para passar o id na barra de endereços
+        const r = await fetch(`${API}/${id}`, {method:'DELETE'});
         const d = await r.json();
         if (d.erro) { toast(d.erro,'err'); return; }
         toast('Matéria removida.'); carregar();

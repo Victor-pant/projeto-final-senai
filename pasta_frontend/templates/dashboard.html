@@ -159,7 +159,9 @@
   </main>
 
   <script>
-    const API = 'https://edusenai-frontend.onrender.com';
+    // CORREÇÃO 1: Apontando para a URL base do seu BACKEND no Render
+    const API = 'https://edusenai-backend.onrender.com';
+    
     const usuario = sessionStorage.getItem('usuario') || 'usuário';
     document.getElementById('nomeUsuario').textContent = usuario;
     document.getElementById('nomeWelcome').textContent = usuario;
@@ -171,13 +173,22 @@
 
     async function carregarStats() {
       try {
+        // CORREÇÃO 2: As chamadas agora batem diretamente nas rotas corretas do backend remoto
         const [ra, rp, rm] = await Promise.all([
-          fetch(`${API}/aluno`), fetch(`${API}/professor`), fetch(`${API}/materias`)
+          fetch(`${API}/aluno`), 
+          fetch(`${API}/professor`), 
+          fetch(`${API}/materias`)
         ]);
-        if (ra.ok) { const d = await ra.json(); document.getElementById('countAlunos').textContent = d.alunos?.length ?? '–'; }
-        if (rp.ok) { const d = await rp.json(); document.getElementById('countProfessores').textContent = d.professores?.length ?? '–'; }
-        if (rm.ok) { const d = await rm.json(); document.getElementById('countMaterias').textContent = d.materias?.length ?? '–'; }
-      } catch(e) { /* backend offline */ }
+        
+        if (ra.ok) { const d = await ra.json(); document.getElementById('countAlunos').textContent = d.alunos?.length ?? '0'; }
+        if (rp.ok) { const d = await rp.json(); document.getElementById('countProfessores').textContent = d.professores?.length ?? '0'; }
+        if (rm.ok) { const d = await rm.json(); document.getElementById('countMaterias').textContent = d.materias?.length ?? '0'; }
+      } catch(e) { 
+        // Caso ocorra falha de conexão, define os contadores como zero
+        document.getElementById('countAlunos').textContent = '0';
+        document.getElementById('countProfessores').textContent = '0';
+        document.getElementById('countMaterias').textContent = '0';
+      }
     }
     carregarStats();
   </script>

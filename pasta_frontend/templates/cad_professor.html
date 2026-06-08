@@ -113,8 +113,12 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    const API = 'https://edusenai-frontend.onrender.com/professor';
+    // CORREÇÃO 1: Apontando para o BACKEND real no Render
+    const API = 'https://edusenai-backend.onrender.com/professor';
     let todos = [];
+
+    // Atualiza o distintivo visual no cabeçalho para indicar que está na Nuvem
+    document.querySelector('.api-badge').innerHTML = '<div class="dot"></div> API: Nuvem';
 
     function toast(msg, tipo='ok') {
       const t = document.getElementById('toast');
@@ -124,7 +128,8 @@
 
     async function carregar() {
       try {
-        const r = await fetch(`${API}/professor`);
+        // CORREÇÃO 2: Removida a duplicação do /professor nas chamadas
+        const r = await fetch(API);
         const d = await r.json();
         todos = d.professores || [];
         renderizar(todos);
@@ -167,9 +172,9 @@
       try {
         let r;
         if (id) {
-          r = await fetch(`${API}/professor`, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:parseInt(id),nome,idade,formacao})});
+          r = await fetch(API, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:parseInt(id),nome,idade,formacao})});
         } else {
-          r = await fetch(`${API}/professor`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({nome,idade,formacao})});
+          r = await fetch(API, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({nome,idade,formacao})});
         }
         const d = await r.json();
         if (d.erro) { toast(d.erro,'err'); return; }
@@ -192,7 +197,7 @@
     async function deletar(id) {
       if (!confirm('Remover este professor?')) return;
       try {
-        const r = await fetch(`${API}/professor/${id}`, {method:'DELETE'});
+        r = await fetch(`${API}/${id}`, {method:'DELETE'});
         const d = await r.json();
         if (d.erro) { toast(d.erro,'err'); return; }
         toast('Professor removido.'); carregar();
@@ -208,6 +213,7 @@
     }
 
     carregar();
+
   </script>
 </body>
 </html>

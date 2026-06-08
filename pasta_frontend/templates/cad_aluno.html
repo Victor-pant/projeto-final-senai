@@ -117,8 +117,12 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    const API = 'https://edusenai-frontend.onrender.com/aluno';
+   // CORREÇÃO 1: Apontando para o endereço correto do BACKEND no Render
+    const API = 'https://edusenai-backend.onrender.com/aluno';
     let todosAlunos = [];
+
+    // Atualiza o distintivo visual no cabeçalho para indicar que está na Nuvem
+    document.querySelector('.api-badge').innerHTML = '<div class="dot"></div> API: Nuvem';
 
     // máscara CPF
     document.getElementById('cpf').addEventListener('input', e => {
@@ -137,7 +141,8 @@
 
     async function carregar() {
       try {
-        const r = await fetch(`${API}/aluno`);
+        // CORREÇÃO 2: Removida a duplicação de /aluno na chamada do fetch
+        const r = await fetch(API);
         const d = await r.json();
         todosAlunos = d.alunos || [];
         renderizar(todosAlunos);
@@ -180,9 +185,9 @@
       try {
         let r;
         if (id) {
-          r = await fetch(`${API}/aluno`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:parseInt(id),nome,idade,cpf}) });
+          r = await fetch(API, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:parseInt(id),nome,idade,cpf}) });
         } else {
-          r = await fetch(`${API}/aluno`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({nome,idade,cpf}) });
+          r = await fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({nome,idade,cpf}) });
         }
         const d = await r.json();
         if (d.erro) { toast(d.erro, 'err'); return; }
@@ -205,7 +210,8 @@
     async function deletar(id) {
       if (!confirm('Remover este aluno?')) return;
       try {
-        const r = await fetch(`${API}/aluno/${id}`, {method:'DELETE'});
+        // CORREÇÃO 3: Ajustado para usar a variável base com o ID do aluno
+        const r = await fetch(`${API}/${id}`, {method:'DELETE'});
         const d = await r.json();
         if (d.erro) { toast(d.erro,'err'); return; }
         toast('Aluno removido.'); carregar();
